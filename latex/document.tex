@@ -1,0 +1,197 @@
+
+\documentclass[a4paper,12pt]{article}
+
+%%% Работа с русским языком
+\usepackage{cmap}					% поиск в PDF
+\usepackage{mathtext} 				% русские буквы в формулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english,russian]{babel}	% локализация и переносы
+
+%%%Цвет гиперссылок
+\usepackage{color}
+\definecolor{darkgreen}{rgb}{0,.5,0}
+\usepackage[colorlinks,filecolor=blue,citecolor=darkgreen]{hyperref}
+
+%%% Дополнительная работа с математикой
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools} % AMS
+\usepackage{icomma} % "Умная" запятая: $0,2$ --- число, $0, 2$ --- перечисление
+
+%% Номера формул
+%\mathtoolsset{showonlyrefs=true} % Показывать номера только у тех формул, на которые есть \eqref{} в тексте.
+%\usepackage{leqno} % Нумерация формул слева
+
+%% Свои команды
+\DeclareMathOperator{\sgn}{\mathop{sgn}}
+
+%% Перенос знаков в формулах (по Львовскому)
+\newcommand*{\hm}[1]{#1\nobreak\discretionary{}
+{\hbox{$\mathsurround=0pt #1$}}{}}
+
+%%% Работа с картинками
+\usepackage{graphicx}  % Для вставки рисунков
+\graphicspath{{images/}{images2/}}  % папки с картинками
+\setlength\fboxsep{3pt} % Отступ рамки \fbox{} от рисунка
+\setlength\fboxrule{1pt} % Толщина линий рамки \fbox{}
+\usepackage{wrapfig} % Обтекание рисунков текстом
+
+%%% Работа с таблицами
+\usepackage{array,tabularx,tabulary,booktabs} % Дополнительная работа с таблицами
+\usepackage{longtable}  % Длинные таблицы
+\usepackage{multirow} % Слияние строк в таблице
+
+%%% Теоремы
+\theoremstyle{plain} % Это стиль по умолчанию, его можно не переопределять.
+\newtheorem{theorem}{Теорема}[section]
+\newtheorem{proposition}[theorem]{Утверждение}
+ 
+\theoremstyle{definition} % "Определение"
+\newtheorem{corollary}{Следствие}[theorem]
+\newtheorem{problem}{Задача}[section]
+ 
+\theoremstyle{remark} % "Примечание"
+\newtheorem*{nonum}{Решение}
+
+%%% Программирование
+\usepackage{etoolbox} % логические операторы
+
+%%% Страница
+%\usepackage{extsizes} % Возможность сделать 14-й шрифт
+\usepackage{geometry} % Простой способ задавать поля
+	\geometry{top=25mm}
+	\geometry{bottom=35mm}
+	\geometry{left=35mm}
+	\geometry{right=20mm}
+ %
+\usepackage{fancyhdr} % Колонтитулы
+ 	\pagestyle{fancy}
+ 	\renewcommand{\headrulewidth}{0mm}  % Толщина линейки, отчеркивающей верхний колонтитул
+ 	%\lfoot{Нижний левый}
+ 	%\rfoot{Нижний правый}
+ 	%\rhead{Верхний правый}
+ 	%\chead{Верхний в центре}
+ 	%\lhead{Верхний левый}
+ 	% \cfoot{Нижний в центре} % По умолчанию здесь номер страницы
+
+\usepackage{setspace} % Интерлиньяж
+%\onehalfspacing % Интерлиньяж 1.5
+%\doublespacing % Интерлиньяж 2
+%\singlespacing % Интерлиньяж 1
+
+\usepackage{lastpage} % Узнать, сколько всего страниц в документе.
+
+\usepackage{soulutf8} % Модификаторы начертания
+
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table,rgb]{xcolor}
+\hypersetup{				% Гиперссылки
+    unicode=true,           % русские буквы в раздела PDF
+    pdftitle={Заголовок},   % Заголовок
+    pdfauthor={Автор},      % Автор
+    pdfsubject={Тема},      % Тема
+    pdfcreator={Создатель}, % Создатель
+    pdfproducer={Производитель}, % Производитель
+    pdfkeywords={keyword1} {key2} {key3}, % Ключевые слова
+    colorlinks=true,       	% false: ссылки в рамках; true: цветные ссылки
+    linkcolor=red,          % внутренние ссылки
+    citecolor=green,        % на библиографию
+    filecolor=magenta,      % на файлы
+    urlcolor=cyan           % на URL
+}
+
+%\renewcommand{\familydefault}{\sfdefault} % Начертание шрифта
+
+\usepackage{multicol} % Несколько колонок
+
+\author{Красильникова Виктория}
+\title{Домашнее задание :
+	Program HMM
+	}
+\date{9 марта 2019 г.}
+
+\begin{document}
+	
+	\maketitle
+	В ходе работы будут рассмотрены основные алгоритмы срытых Марковсих моделей. 
+	\section{Определение скрытых марковских моделей}
+	Скрытая Марковская модель или кратко HMM формально может быть описана следующим образом.
+	\begin{itemize}
+		\item 
+		Множество дискретных состояний $S = (S_1,S_2,... S_M)$
+		\item 
+		Соостояние в момент времени $t: q_t$ 
+		\item 
+		Множество возможных сигналов $V = (V_1,V_2,... V_K)$
+		\item
+		Матрица переходов A из состояния  в состояние на мн-ве S, $A_{ij} = P(q_{t+1} = S_j | q_t = S_i)$
+		\item
+		Матрица B , которая содержит вероятности выдать сигнал в определенном состоянии 
+		$B_{ij} = b_i(j) = P ( v_j | q_t = S_i )$
+		\item
+		Наблюдаемая последовательность сигналов $O=(O_1,O_2,...,O_L)$
+		\item
+		Вектор начального состояния $\pi , \pi_i = P(q_1 = S_i)$ 
+		\item 
+		HMM Model  $\lambda = 	(A,B, \pi)$
+		
+	\end{itemize}
+	
+	
+	\section{HMM program}
+	\subsection{Алгоритм Витерби}
+		Реализуем алгоритм Viterbi для нахождения наиболее вероятной последовательности состояний данной HMM по последовательности наблюдаемых сигналов
+	\\
+	Дана последовательность $O = (O_1 , O_2, ... O_T)$ и модель $\lambda = (A,B, \pi)$	
+	\\
+	Необходимо подобрать последовательность состояний системы $ Q = q_1,q_2,...,q_T$, которая лучше всего соответствует наблюдаемой последовательности, т.е. объясняет последовательность наблюдений O.\\
+	\subsection{Back-forward propagation}
+	 Необходимо реализовать алгоритм Back-forward  для нахождения вероятности последовательности наблюдаемых сигналов для данной HMM.
+	\\
+	Таким образом дана последовательность  $O=(O_1,O_2,...,O_T)$ и модель $\lambda = 	(A,B, \pi)$ \\
+	Необходимо вычислить вероятность $P(O,\lambda)$ что данная последовательность построена именно для нашей модели.
+	
+	Алгоритм состоит из 2-х частей \\
+	1). Вычисление Forward значений 
+	$ \alpha_t(i) = P(O_1, O_2 ,... ,O_t, q_t = S_i | \lambda) $ 
+	\begin{itemize}
+		\item 
+		$\alpha_1(i) = \pi_i b_i(O_1)$
+		\item
+		$\alpha_{t+1} (j) =(\sum_{i=1}^{N}\alpha_t(i)a_{ij}) b_j(O_{t+1})$
+		\item
+		$P(O|\lambda) = \sum_{i=1}^{N}\alpha_T(i)$
+	\end{itemize} 
+	2). Вычисление Backward значений 
+	$\beta_t(i) = P(O_{t+1},..., O_T, q_t = S_i | \lambda) $
+	\begin{itemize}
+	\item
+	$\beta_T(i) = 1 $
+	\item
+	$ \beta_t(i) = \sum_{j=1}^{N}a_{ij}b_j(O_{t+1})\beta_{t+1}(j) $ 
+	\item
+	$P(O|\lambda) = \sum_{i=1}^{N} \beta_1(i)\pi_i b_i(O_1)$
+	\end{itemize} 
+	3). Вычисление постериорных вероятностей
+	\begin{itemize}
+		\item
+		$ \gamma_t(i) = \frac{\alpha_t(i)\beta_t(i)}{P(O|\lambda)} $ 
+		\item 
+		${P(O|\lambda)} =  \sum_{i=1}^{N} \alpha_t(i) \beta_t(i) $
+	\end{itemize} 
+	\section{Выводы}
+	В ходе выполнения работы были реализованы основные алгоритмы модели скрытых Марковских цепей.
+	Также были вычислены наиболее вероятная последовательность состояний и параметры HMM на основе наблюдаемых сигналов в  предположении, что модель описывается эргодической Марковской цепью. \\
+    Код исследования представлен в файле $hmm.ipynb$ \\
+    Полученные значения параметров записаны в следующих файлах:
+    \begin{itemize}
+    	\item
+    	Начальное распределение вероятностей  pi.csv
+    	\item
+    	Матрица переходов  A.csv
+    	\item
+    	Матрица эмиссий  B.csv
+    \end{itemize}
+    
+		   
+	
+\end{document}
